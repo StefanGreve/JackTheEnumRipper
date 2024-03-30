@@ -8,7 +8,7 @@ namespace JackTheEnumRipper.Core
     {
         public static string Repeat(this string source, int times)
         {
-            return string.Concat(Enumerable.Repeat(source, times));
+            return (times != 0) ? string.Concat(Enumerable.Repeat(source, times)) : source;
         }
 
         public static bool IsValidEncoding(this Encoding encoding, string name)
