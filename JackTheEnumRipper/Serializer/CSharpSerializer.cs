@@ -55,20 +55,40 @@ namespace Serializer
             return compileUnit;
         }
 
+        private static void ReplaceTopLevelComment(StringWriter writer, string? newComment)
+        {
+            if (string.IsNullOrEmpty(newComment)) return;
+
+            IEnumerable<string> lines = writer
+                .ToString()
+                .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                .SkipWhile(line => line.TrimStart().StartsWith("//"));
+
+            writer.GetStringBuilder().Clear();
+            writer.WriteLine($"// {newComment}");
+
+            foreach (string line in lines)
+            {
+                writer.WriteLine(line);
+            }
+        }
+
         public void Serialize(IEnumerable<AbstractEnum> enums, string path)
         {
             var provider = CodeDomProvider.CreateProvider(Enum.GetName(this.Format));
-            var codeCompileUnit = GenerateEnumCode(enums);
+            var compileUnit = GenerateEnumCode(enums);
+
             var options = new CodeGeneratorOptions
             {
                 BracingStyle = "C",
                 BlankLinesBetweenMembers = false,
-                IndentString = "    "
+                IndentString = this._appSettings.Indentation ?? "\t"
             };
 
             using StringWriter writer = new();
             var encoding = Encoding.GetEncoding(this._appSettings.Encoding);
-            provider.GenerateCodeFromCompileUnit(codeCompileUnit, writer, options);
+            provider.GenerateCodeFromCompileUnit(compileUnit, writer, options);
+            ReplaceTopLevelComment(writer, this._appSettings.Comment);
             File.WriteAllText(path, writer.ToString(), encoding);
         }
     }
