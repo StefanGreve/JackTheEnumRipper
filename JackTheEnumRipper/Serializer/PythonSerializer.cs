@@ -24,7 +24,7 @@ namespace JackTheEnumRipper.Serializer
 
             if (!string.IsNullOrEmpty(this._appSettings.Comment))
             {
-                builder.AppendLine($"# {this._appSettings.Comment}");
+                builder.AppendLine($"# {this._appSettings.Comment}{Environment.NewLine}");
             }
 
             builder.AppendLine($"from enum import Enum, unique");
